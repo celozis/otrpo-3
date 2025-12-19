@@ -31,7 +31,7 @@ class CardController extends Controller
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048', // макс 2МБ
         ]);
 
-        // Загрузка картинки
+        // обработка картинки
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('cards', 'public');
             $validated['image'] = 'storage/' . $path;
@@ -54,7 +54,6 @@ class CardController extends Controller
 
     public function update(Request $request, Card $card)
     {
-        // 1. Валидация (всегда делайте её перед сохранением!)
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'release_date_world' => 'required|date',
@@ -62,21 +61,18 @@ class CardController extends Controller
             'short_description' => 'required|string',
             'additional_description' => 'required|string',
             'metacritic_score' => 'required|integer|min:0|max:100',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // nullable, так как фото менять не обязательно
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // 2. Обработка картинки
         if ($request->hasFile('image')) {
-            // Сохраняем новый файл
+
             $path = $request->file('image')->store('cards', 'public');
             $validated['image'] = 'storage/' . $path;
         } else {
-            // Если новое фото не загружено, убираем поле из массива,
-            // чтобы не перезаписать путь в базе на пустоту
+            // если фото не загружено, убираем поле из массива
             unset($validated['image']);
         }
 
-        // 3. Обновление (теперь мы передаем МАССИВ $validated)
         $card->update($validated);
 
         return redirect('/cards');

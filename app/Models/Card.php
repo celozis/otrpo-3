@@ -5,9 +5,11 @@ namespace App\Models;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Card extends Model
 {
+    use SoftDeletes;
     protected $guarded = [];
 
     // для мира

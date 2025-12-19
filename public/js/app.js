@@ -7440,11 +7440,14 @@ __webpack_require__.r(__webpack_exports__);
 
 window.bootstrap = bootstrap__WEBPACK_IMPORTED_MODULE_0__;
 
-// Массив id модалок (поддерживай порядок как в HTML)
-var modalIds = ['modalGTA2', 'modalGTA3', 'modalMaxPayne', 'modalViceCity', 'modalSanAndreas'];
-
-// Возвращает индекс открытой модалки или -1
-function getCurrentModalIndex() {
+// Функция для получения всех ID модалок, которые реально есть на странице прямо сейчас
+function getDynamicModalIds() {
+  // Выбираем все элементы с классом modal и берем их id
+  return Array.from(document.querySelectorAll('.modal')).map(function (modal) {
+    return modal.id;
+  });
+}
+function getCurrentModalIndex(modalIds) {
   for (var i = 0; i < modalIds.length; i++) {
     var el = document.getElementById(modalIds[i]);
     if (el && el.classList.contains('show')) {
@@ -7454,68 +7457,49 @@ function getCurrentModalIndex() {
   return -1;
 }
 document.addEventListener('DOMContentLoaded', function () {
-  // --- Popovers: инициализируем один раз ---
-  var popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-  popoverTriggerList.forEach(function (el) {
-    // Используем getOrCreateInstance, чтобы не создавать дубликаты
+  // 1. Инициализация Popovers и Toast (оставляем как было)
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
     bootstrap__WEBPACK_IMPORTED_MODULE_0__.Popover.getOrCreateInstance(el);
   });
-
-  // --- Toast: создаём инстанс и вешаем обработчик ---
-  var toastTrigger = document.getElementById('liveToastBtn');
   var toastEl = document.getElementById('liveToast');
-  var toastInstance = null;
   if (toastEl) {
-    toastInstance = bootstrap__WEBPACK_IMPORTED_MODULE_0__.Toast.getOrCreateInstance(toastEl);
+    var toastTrigger = document.getElementById('liveToastBtn');
+    var toastInstance = bootstrap__WEBPACK_IMPORTED_MODULE_0__.Toast.getOrCreateInstance(toastEl);
+    if (toastTrigger) {
+      toastTrigger.addEventListener('click', function () {
+        return toastInstance.show();
+      });
+    }
   }
-  if (toastTrigger && toastInstance) {
-    toastTrigger.addEventListener('click', function () {
-      toastInstance.show();
-    });
-  }
 
-  // --- Подготовка модалок: создаём инстансы и обработчики закрытия ---
-  modalIds.forEach(function (id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-
-    // Создаём/поднимаем инстанс (не обязательно, но удобно)
-    bootstrap__WEBPACK_IMPORTED_MODULE_0__.Modal.getOrCreateInstance(el);
-
-    // При закрытии модалки — если больше нет открытых, убрать backdrop и класс body
-    el.addEventListener('hidden.bs.modal', function () {
-      if (getCurrentModalIndex() === -1) {
-        var back = document.querySelector('.modal-backdrop');
-        if (back) back.remove();
-        document.body.classList.remove('modal-open');
-      }
-    });
-  });
-
-  // --- Переключение модалок стрелками ---
-  // Логика: при нажатии стрелки скрыть текущую модалку, по событию hidden.bs.modal открыть следующую.
+  // 2. Переключение модалок стрелками
   document.addEventListener('keydown', function (event) {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-    var currentIndex = getCurrentModalIndex();
-    if (currentIndex === -1) return; // если нет открытой модалки — ничего не делаем
-
+    var modalIds = getDynamicModalIds(); // Получаем актуальный список ID
+    var currentIndex = getCurrentModalIndex(modalIds);
+    if (currentIndex === -1) return;
     event.preventDefault();
+
+    // Рассчитываем индекс следующей цели
     var targetIndex = event.key === 'ArrowLeft' ? currentIndex - 1 : currentIndex + 1;
+
+    // Проверка границ
     if (targetIndex < 0 || targetIndex >= modalIds.length) return;
     var currentEl = document.getElementById(modalIds[currentIndex]);
     var nextEl = document.getElementById(modalIds[targetIndex]);
     if (!currentEl || !nextEl) return;
 
-    // Показываем следующую модалку только после того, как текущая полностью скрыта
-    var _onHidden = function onHidden() {
-      // Открываем следующую
-      bootstrap__WEBPACK_IMPORTED_MODULE_0__.Modal.getOrCreateInstance(nextEl).show();
-      currentEl.removeEventListener('hidden.bs.modal', _onHidden);
-    };
-
-    // Подписываемся и прячем текущую
-    currentEl.addEventListener('hidden.bs.modal', _onHidden);
+    // Логика переключения
     var currentModal = bootstrap__WEBPACK_IMPORTED_MODULE_0__.Modal.getOrCreateInstance(currentEl);
+    var nextModal = bootstrap__WEBPACK_IMPORTED_MODULE_0__.Modal.getOrCreateInstance(nextEl);
+
+    // Чтобы не было конфликта анимаций и "черного экрана" (backdrops)
+    currentEl.addEventListener('hidden.bs.modal', function onHidden() {
+      nextModal.show();
+      currentEl.removeEventListener('hidden.bs.modal', onHidden);
+    }, {
+      once: true
+    });
     currentModal.hide();
   });
 });

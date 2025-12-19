@@ -1,18 +1,13 @@
 import * as bootstrap from 'bootstrap';
-
 window.bootstrap = bootstrap;
 
-// Массив id модалок (поддерживай порядок как в HTML)
-const modalIds = [
-    'modalGTA2',
-    'modalGTA3',
-    'modalMaxPayne',
-    'modalViceCity',
-    'modalSanAndreas'
-];
+// Функция для получения всех ID модалок, которые реально есть на странице прямо сейчас
+function getDynamicModalIds() {
+    // Выбираем все элементы с классом modal и берем их id
+    return Array.from(document.querySelectorAll('.modal')).map(modal => modal.id);
+}
 
-// Возвращает индекс открытой модалки или -1
-function getCurrentModalIndex() {
+function getCurrentModalIndex(modalIds) {
     for (let i = 0; i < modalIds.length; i++) {
         const el = document.getElementById(modalIds[i]);
         if (el && el.classList.contains('show')) {
@@ -23,71 +18,52 @@ function getCurrentModalIndex() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Popovers: инициализируем один раз ---
-    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-    popoverTriggerList.forEach(el => {
-        // Используем getOrCreateInstance, чтобы не создавать дубликаты
+    // 1. Инициализация Popovers и Toast (оставляем как было)
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
         bootstrap.Popover.getOrCreateInstance(el);
     });
 
-    // --- Toast: создаём инстанс и вешаем обработчик ---
-    const toastTrigger = document.getElementById('liveToastBtn');
     const toastEl = document.getElementById('liveToast');
-    let toastInstance = null;
     if (toastEl) {
-        toastInstance = bootstrap.Toast.getOrCreateInstance(toastEl);
+        const toastTrigger = document.getElementById('liveToastBtn');
+        const toastInstance = bootstrap.Toast.getOrCreateInstance(toastEl);
+        if (toastTrigger) {
+            toastTrigger.addEventListener('click', () => toastInstance.show());
+        }
     }
-    if (toastTrigger && toastInstance) {
-        toastTrigger.addEventListener('click', () => {
-            toastInstance.show();
-        });
-    }
 
-    // --- Подготовка модалок: создаём инстансы и обработчики закрытия ---
-    modalIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        // Создаём/поднимаем инстанс (не обязательно, но удобно)
-        bootstrap.Modal.getOrCreateInstance(el);
-
-        // При закрытии модалки — если больше нет открытых, убрать backdrop и класс body
-        el.addEventListener('hidden.bs.modal', () => {
-            if (getCurrentModalIndex() === -1) {
-                const back = document.querySelector('.modal-backdrop');
-                if (back) back.remove();
-                document.body.classList.remove('modal-open');
-            }
-        });
-    });
-
-    // --- Переключение модалок стрелками ---
-    // Логика: при нажатии стрелки скрыть текущую модалку, по событию hidden.bs.modal открыть следующую.
+    // 2. Переключение модалок стрелками
     document.addEventListener('keydown', (event) => {
         if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
 
-        const currentIndex = getCurrentModalIndex();
-        if (currentIndex === -1) return; // если нет открытой модалки — ничего не делаем
+        const modalIds = getDynamicModalIds(); // Получаем актуальный список ID
+        const currentIndex = getCurrentModalIndex(modalIds);
+
+        if (currentIndex === -1) return;
 
         event.preventDefault();
 
+        // Рассчитываем индекс следующей цели
         const targetIndex = event.key === 'ArrowLeft' ? (currentIndex - 1) : (currentIndex + 1);
+
+        // Проверка границ
         if (targetIndex < 0 || targetIndex >= modalIds.length) return;
 
         const currentEl = document.getElementById(modalIds[currentIndex]);
         const nextEl = document.getElementById(modalIds[targetIndex]);
+
         if (!currentEl || !nextEl) return;
 
-        // Показываем следующую модалку только после того, как текущая полностью скрыта
-        const onHidden = () => {
-            // Открываем следующую
-            bootstrap.Modal.getOrCreateInstance(nextEl).show();
-            currentEl.removeEventListener('hidden.bs.modal', onHidden);
-        };
-
-        // Подписываемся и прячем текущую
-        currentEl.addEventListener('hidden.bs.modal', onHidden);
+        // Логика переключения
         const currentModal = bootstrap.Modal.getOrCreateInstance(currentEl);
+        const nextModal = bootstrap.Modal.getOrCreateInstance(nextEl);
+
+        // Чтобы не было конфликта анимаций и "черного экрана" (backdrops)
+        currentEl.addEventListener('hidden.bs.modal', function onHidden() {
+            nextModal.show();
+            currentEl.removeEventListener('hidden.bs.modal', onHidden);
+        }, { once: true });
+
         currentModal.hide();
     });
 });
