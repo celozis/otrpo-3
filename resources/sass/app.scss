@@ -1,0 +1,90 @@
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px,
+    xxxl: 1800px
+);
+
+$container-max-widths: (
+    sm: 540px,
+    md: 720px,
+    lg: 960px,
+    xl: 1140px,
+    xxl: 1320px,
+    xxxl: 1800px
+);
+
+
+@import "bootstrap/scss/bootstrap";
+
+
+.navbar {
+    background-color: beige !important;
+
+    .nav-logo {
+        height: 56px;
+        width: auto;
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+    }
+}
+
+
+$row-base-color: rgb(221, 194, 40);
+
+.row {
+    @for $i from 1 through 3 {
+        .col:nth-child(3n + #{$i}) .card {
+            background-color: lighten($row-base-color, $i * 10%);
+        }
+    }
+}
+
+// Стили для футера
+footer {
+    // Небольшая тень сверху, чтобы отделить футер визуально
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-top: auto;
+        // Ваши остальные стили (тени, цвета и т.д.)
+
+    .developer-name span {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    // Эффект при наведении на иконки
+    .hover-effect {
+        transition: transform 0.2s ease, color 0.2s ease;
+
+        &:hover {
+            // Иконка немного увеличивается
+            transform: scale(1.2);
+        }
+    }
+
+    // Индивидуальные цвета при наведении (как у брендов)
+    .fa-telegram:hover {
+        color: #27a4e2 !important; // Цвет Telegram
+    }
+
+    .fa-vk:hover {
+        color: #0077FF !important; // Цвет VK
+    }
+}
+
+body {
+    // Растягиваем body минимум на 100% высоты видимой области экрана (viewport height)
+    min-height: 100vh;
+
+        // Включаем Flexbox
+    display: flex;
+
+        // Говорим элементам выстраиваться в колонку (сверху вниз)
+    flex-direction: column;
+}
