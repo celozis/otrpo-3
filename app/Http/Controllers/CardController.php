@@ -19,12 +19,27 @@ class CardController extends Controller
         return view('card.create');
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        $data = request();
-        $card = Card::create($data);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'release_date_world' => 'required|date',
+            'release_date_russia' => 'required|date',
+            'short_description' => 'required|string|max:500',
+            'additional_description' => 'required|string',
+            'metacritic_score' => 'required|integer|min:0|max:100',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048', // макс 2МБ
+        ]);
 
-        return redirect('/cards');
+        // Загрузка картинки
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('cards', 'public');
+            $validated['image'] = 'storage/' . $path;
+        }
+
+        Card::create($validated);
+
+        return redirect('/cards')->with('success', 'Игра успешно добавлена!');
     }
 
     public function show(Card $card)
@@ -39,8 +54,30 @@ class CardController extends Controller
 
     public function update(Request $request, Card $card)
     {
-        $data = request();
-        $card->update($data);
+        // 1. Валидация (всегда делайте её перед сохранением!)
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'release_date_world' => 'required|date',
+            'release_date_russia' => 'required|date',
+            'short_description' => 'required|string',
+            'additional_description' => 'required|string',
+            'metacritic_score' => 'required|integer|min:0|max:100',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // nullable, так как фото менять не обязательно
+        ]);
+
+        // 2. Обработка картинки
+        if ($request->hasFile('image')) {
+            // Сохраняем новый файл
+            $path = $request->file('image')->store('cards', 'public');
+            $validated['image'] = 'storage/' . $path;
+        } else {
+            // Если новое фото не загружено, убираем поле из массива,
+            // чтобы не перезаписать путь в базе на пустоту
+            unset($validated['image']);
+        }
+
+        // 3. Обновление (теперь мы передаем МАССИВ $validated)
+        $card->update($validated);
 
         return redirect('/cards');
     }
