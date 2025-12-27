@@ -19,8 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -44,5 +46,30 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function cards()
+    {
+        // у пользователя много моделей Card
+        return $this->hasMany(Card::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // кого я добавил
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friends_users', 'user_id', 'friend_id')
+            ->withTimestamps();
+    }
+
+// Те, кто добавил меня
+    public function addedMe()
+    {
+        return $this->belongsToMany(User::class, 'friends_users', 'friend_id', 'user_id')
+            ->withTimestamps();
     }
 }

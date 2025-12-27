@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 @section('body')
     <div class="container mt-5">
@@ -16,7 +16,8 @@
                     </div>
 
                     <div class="col-md-8">
-                        <p><strong>Оценка Metacritic:</strong> <span class="badge bg-info text-dark">{{ $card->metacritic_score }}</span></p>
+                        <p><strong>Оценка Metacritic:</strong> <span
+                                    class="badge bg-info text-dark">{{ $card->metacritic_score }}</span></p>
                         <p><strong>Релиз в мире:</strong> {{ $card->release_date_world }}</p>
                         <p><strong>Релиз в РФ:</strong> {{ $card->release_date_russia }}</p>
                         <hr>
@@ -27,12 +28,13 @@
             </div>
 
             <div class="card-footer d-flex gap-2">
-                <a href="/cards/{{ $card->id }}/edit" class="btn btn-primary">Редактировать</a>
-                <form action="/cards/{{ $card->id }}" method="POST" onsubmit="return confirm('Удалить?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                </form>
+                @can('update-delete-card', $card)
+                    <a href="{{ route('cards.edit', $card->id) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                    <form action="{{ route('cards.destroy', $card->id) }}" method="POST" style="display:inline">
+                        @csrf @method('DELETE')
+                        <button class="btn btn-danger btn-sm">Удалить</button>
+                    </form>
+                @endcan
             </div>
         </div>
     </div>

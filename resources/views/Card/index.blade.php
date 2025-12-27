@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 <!-- карточки -->
 @section('body')
@@ -23,7 +23,8 @@
                             </button>
 
                             <!-- Modal -->
-                            <div class="modal fade" id="modal-{{$card->id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            <div class="modal fade" id="modal-{{$card->id}}" tabindex="-1"
+                                 aria-labelledby="exampleModalLabel"
                                  aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -48,6 +49,62 @@
 
 
                                         </div>
+                                    </div>
+
+                                </div>
+                                <div class="comments-wrapper">
+                                    <div class="comments-container">
+                                        <div class="comments-header">
+                                            <i class="far fa-comments"></i>
+                                            <span>Обсуждение</span>
+                                            <span class="badge bg-primary ms-2">{{ $card->comments->count() }}</span>
+                                        </div>
+                                        <div class="comments-list">
+                                            @forelse($card->comments as $comment)
+                                                <div class="comment-item">
+                                                    <div class="comment-avatar">
+                                                        {{ strtoupper(substr($comment->user->username, 0, 1)) }}
+                                                    </div>
+                                                    <div class="comment-content">
+                                                        <div class="comment-header d-flex align-items-center mb-1">
+                                                            <div class="d-flex align-items-center">
+                                                                <span class="comment-author fw-bold text-primary">{{ $comment->user->username }}</span>
+
+                                                                @auth
+                                                                    @if(auth()->user()->friends->contains($comment->user->id))
+                                                                        <span class="badge rounded-pill bg-warning text-dark ms-2 d-flex align-items-center shadow-sm"
+                                                                              style="font-size: 0.65rem; padding: 4px 8px; border: 1px solid #edb100; font-weight: 800;">
+                                                                                <i class="fas fa-user-friends me-1"></i> ВАШ ДРУГ
+                                                                        </span>
+                                                                    @endif
+                                                                @endauth
+                                                            </div>
+
+                                                            <span class="comment-date ms-auto small text-muted" style="font-size: 0.7rem;">
+                                                                {{ $comment->created_at->diffForHumans() }}
+                                                            </span>
+                                                        </div>
+                                                        <p class="comment-text">{{ $comment->text }}</p>
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <div class="comments-empty">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                    <p>Здесь пока пусто. Оставьте первый отзыв!</p>
+                                                </div>
+                                            @endforelse
+                                        </div>
+
+                                        @auth
+                                            <form action="{{ route('comments.store') }}" method="POST" class="comment-form">
+                                                @csrf
+                                                <input type="hidden" name="card_id" value="{{ $card->id }}">
+                                                <textarea name="text" class="form-control" placeholder="Напишите мнение..." rows="2" required></textarea>
+                                                <button class="btn btn-primary btn-sm" type="submit">
+                                                    <i class="fas fa-paper-plane"></i> Отправить
+                                                </button>
+                                            </form>
+                                        @endauth
                                     </div>
                                 </div>
                             </div>

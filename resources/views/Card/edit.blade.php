@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 @section('body')
     <div class="container mt-5">
@@ -22,20 +22,22 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Дата выхода в Мире</label>
-                    <input type="date" name="release_date_world"
-                           class="form-control @error('release_date_world') is-invalid @enderror"
-                           required
-                           value="{{ old('release_date_world', $card->release_date_world) }}">
+                    <input type="date"
+                           name="release_date_world"
+                           id="release_date_world"
+                           class="form-control"
+                           value="{{ old('release_date_world', $card->release_date_world ? \Illuminate\Support\Carbon::parse($card->release_date_world)->format('Y-m-d') : '') }}">
                     @error('release_date_world')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Дата выхода в России</label>
-                    <input type="date" name="release_date_russia"
-                           class="form-control @error('release_date_russia') is-invalid @enderror"
-                           required
-                           value="{{ old('release_date_russia', $card->release_date_russia) }}">
+                    <input type="date"
+                           name="release_date_russia"
+                           id="release_date_russia"
+                           class="form-control"
+                           value="{{ old('release_date_russia', $card->release_date_russia ? \Illuminate\Support\Carbon::parse($card->release_date_russia)->format('Y-m-d') : '') }}">
                     @error('release_date_russia')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -56,7 +58,8 @@
                 <label class="form-label">Дополнительное описание</label>
                 <textarea name="additional_description"
                           class="form-control @error('additional_description') is-invalid @enderror"
-                          rows="4" required>{{ old('additional_description', $card->additional_description) }}</textarea>
+                          rows="4"
+                          required>{{ old('additional_description', $card->additional_description) }}</textarea>
                 @error('additional_description')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

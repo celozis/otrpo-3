@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 @section('body')
     <div class="container mt-5">
@@ -18,14 +18,16 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Дата выхода в Мире</label>
-                    <input type="date" name="release_date_world" class="form-control" required value="{{ old('release_date_world') }}">
+                    <input type="date" name="release_date_world" class="form-control" required
+                           value="{{ old('release_date_world') }}">
                     @error('release_date_world')
                     <p style="color: red">{{$message}}</p>
                     @enderror
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Дата выхода в России</label>
-                    <input type="date" name="release_date_russia" class="form-control" required value="{{ old('release_date_russia') }}">
+                    <input type="date" name="release_date_russia" class="form-control" required
+                           value="{{ old('release_date_russia') }}">
                     @error('release_date_russia')
                     <p style="color: red">{{$message}}</p>
                     @enderror
@@ -34,7 +36,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Короткое описание</label>
-                <textarea name="short_description" class="form-control" rows="2" required>{{ old('short_description') }}</textarea>
+                <textarea name="short_description" class="form-control" rows="2"
+                          required>{{ old('short_description') }}</textarea>
                 @error('short_description')
                 <p style="color: red">{{$message}}</p>
                 @enderror
@@ -42,7 +45,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Дополнительное описание</label>
-                <textarea name="additional_description" class="form-control" rows="4" required>{{ old('additional_description') }}</textarea>
+                <textarea name="additional_description" class="form-control" rows="4"
+                          required>{{ old('additional_description') }}</textarea>
                 @error('additional_description')
                 <p style="color: red">{{$message}}</p>
                 @enderror
@@ -51,7 +55,8 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Оценка Metacritic</label>
-                    <input type="number" name="metacritic_score" class="form-control" min="0" max="100" required value="{{ old('metacritic_score') }}">
+                    <input type="number" name="metacritic_score" class="form-control" min="0" max="100" required
+                           value="{{ old('metacritic_score') }}">
                     @error('metacritic_score')
                     <p style="color: red">{{$message}}</p>
                     @enderror

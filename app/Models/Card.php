@@ -32,4 +32,24 @@ class Card extends Model
     {
         $this->attributes['release_date_russia'] = Carbon::parse($value)->format('Y-m-d');
     }
+
+    protected static function booted()
+    {
+        static::creating(function ($card) {
+            if (auth()->check()) {
+
+                $card->user_id = auth()->id();
+            }
+        });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
