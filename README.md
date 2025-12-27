@@ -1,3 +1,37 @@
+Проект ОТРПО 3 курс 1 семестр (декабрь) - сайт с карточками игр от Rockstar 
+
+Функционал: Авторизация, разные права для админа/обычных пользователей, добавление/удаление/редактирование карточек.
+
+Есть возможность добавить пользователей в друзья, смотреть их карточки и есть страница feed с карточками всех друзей.
+
+
+<br>
+
+Как закпусткать (полюс минус)
+
+<br>
+
+
+composer install (установка библиотек).
+
+cp .env.example .env (создание файла настроек).
+
+php artisan key:generate (генерация ключа безопасности приложения).
+
+php artisan migrate (создание таблиц в базе данных).
+
+php artisan storage:link (чтобы заработали картинки).
+
+
+
+
+
+
+
+
+
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
